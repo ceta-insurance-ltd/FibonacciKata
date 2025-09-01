@@ -6,7 +6,14 @@ class Program
 {
     static void Main(string[] args)
     {
-        int limit = args.Length > 0 && int.TryParse(args[0], out var input) ? input : 10000;
+        var limit = args.Length > 0 && int.TryParse(args[0], out var input) ? input : 10000;
+
+        const string header =
+            "| Fibonacci(n) | Result       | Time (ms) | Memory (bytes) |\n" +
+            "|--------------|--------------|-----------|----------------|";
+
+        Console.WriteLine();
+        Console.WriteLine(header);
 
         GC.Collect();
         GC.WaitForPendingFinalizers();
@@ -21,9 +28,16 @@ class Program
         var finalMemory = GC.GetTotalMemory(true);
         var memoryUsed = finalMemory - startingMemory;
 
-        Console.WriteLine($"\n-- Result: {result}");
-        Console.WriteLine($"-- Time elapsed: {watch.ElapsedMilliseconds} ms");
-        Console.WriteLine($"-- Memory used: {memoryUsed:N0} bytes");
+        var resultOutput = string.Create(72, (limit, result, watch.ElapsedMilliseconds, memoryUsed),
+            static (span, state) =>
+            {
+                var (n, result, time, memory) = state;
+                var s = FormattableString.Invariant(
+                    $"| {n,-12} | {result,-12} | {time,-9} | {memory,-14:N0} |");
+                s.AsSpan().CopyTo(span);
+            });
+
+        Console.WriteLine(resultOutput);
     }
 
     static long Fibonacci(int limit)
