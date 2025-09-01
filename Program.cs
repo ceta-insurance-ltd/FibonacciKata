@@ -25,10 +25,12 @@ class Program
         var result = Fibonacci(limit);
 
         watch.Stop();
+        
+        var elapsed = watch.ElapsedTicks * (1000000.0 / Stopwatch.Frequency);
         var finalMemory = GC.GetTotalMemory(true);
         var memoryUsed = finalMemory - startingMemory;
 
-        var resultOutput = string.Create(72, (limit, result, watch.ElapsedMilliseconds, memoryUsed),
+        var resultOutput = string.Create(72, (limit, result, elapsed, memoryUsed),
             static (span, state) =>
             {
                 var (n, result, time, memory) = state;
